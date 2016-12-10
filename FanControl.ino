@@ -17,20 +17,26 @@
  */
 
 #include <LowPower.h>
+#include <avr/power.h>
 #include <stdint.h>
 
-#define GROUND_MASTER_PIN     A0
-#define GROUND_SWITCH_PIN     A1 
-#define VOLTAGE_SWITCH_PIN    A2
+#define RANDOM_PIN            A6
+#define GROUND_MASTER_PIN     10
+#define GROUND_SWITCH_PIN     11
+#define VOLTAGE_SWITCH_PIN    12
 
 #define RELAY_ON              LOW
 #define RELAY_OFF             HIGH
 
 void setup() {
+   power_all_disable();
+
    pinMode(GROUND_MASTER_PIN, OUTPUT);
    pinMode(GROUND_SWITCH_PIN, OUTPUT);
    pinMode(VOLTAGE_SWITCH_PIN, OUTPUT);
    digitalWrite(GROUND_MASTER_PIN, RELAY_OFF);
+
+   randomSeed(analogRead(RANDOM_PIN));
 }
 
 static inline
@@ -58,10 +64,19 @@ void activateFan(uint8_t fan, unsigned int secs) {
 }
 
 void loop() {
-   int r, f, i;
+   int r, f, d;
 
-   for (i = 1; i <= 5; ++i)
-      for (r = 0; r < 10; ++r)
+   for (d = 1; d <= 4; ++d)
+      for (r = 0; r < 15; ++r)
          for (f = 0; f <= 1; ++f)
-            activateFan(f, i);
+            activateFan(f, d);
+
+   for (d = 5; d <= 10; ++d)
+      for (r = 0; r < 5; ++r)
+         for (f = 0; f <= 1; ++f)
+            activateFan(f, d);
+
+   for (r = 0; r < 5; ++r)
+      for (f = 0; f <= 1; ++f)
+         activateFan(f, 1 + random(10));
 }
